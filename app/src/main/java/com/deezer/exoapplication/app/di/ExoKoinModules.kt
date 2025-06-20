@@ -1,6 +1,8 @@
 package com.deezer.exoapplication.app.di
 
-import org.koin.core.module.Module
+import com.deezer.exoapplication.database.di.databaseKoinModule
 
 internal val exoKoinModules =
-    listOf<Module>()
+    listOf(
+        databaseKoinModule,
+    )
