@@ -1,4 +1,4 @@
-package com.deezer.exoapplication
+package com.deezer.exoapplication.app
 
 import androidx.annotation.OptIn
 import androidx.compose.runtime.Composable

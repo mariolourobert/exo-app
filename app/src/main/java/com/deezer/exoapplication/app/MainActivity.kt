@@ -1,4 +1,4 @@
-package com.deezer.exoapplication
+package com.deezer.exoapplication.app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.deezer.exoapplication.ui.theme.ExoAppTheme
+import com.deezer.exoapplication.app.ui.theme.ExoAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

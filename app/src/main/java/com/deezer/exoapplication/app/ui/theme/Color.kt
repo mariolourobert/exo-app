@@ -1,4 +1,4 @@
-package com.deezer.exoapplication.ui.theme
+package com.deezer.exoapplication.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
