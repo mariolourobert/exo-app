@@ -6,7 +6,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "tracks")
 data class TrackEntity(
-    @PrimaryKey val uid: Int,
+    @PrimaryKey
+    @ColumnInfo(name = "trackId")
+    val uid: Int,
     @ColumnInfo(name = "trackName") val trackName: String?,
     @ColumnInfo(name = "trackUri") val trackUri: String?,
 )

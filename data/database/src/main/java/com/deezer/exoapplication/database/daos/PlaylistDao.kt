@@ -11,6 +11,6 @@ interface PlaylistDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(track: PlaylistEntity)
 
-    @Query("SELECT * FROM playlist WHERE uid = :playlistId")
+    @Query("SELECT * FROM playlist WHERE playlistId = :playlistId")
     suspend fun getPlaylist(playlistId: Int): PlaylistEntity?
 }
