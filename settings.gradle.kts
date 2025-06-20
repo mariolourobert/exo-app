@@ -22,6 +22,7 @@ dependencyResolutionManagement {
 rootProject.name = "ExoApp"
 include(
     ":app",
-    ":data",
+    ":data:data",
+    ":data:database",
 )
  
