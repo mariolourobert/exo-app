@@ -20,5 +20,8 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "ExoApp"
-include(":app")
+include(
+    ":app",
+    ":data",
+)
  
