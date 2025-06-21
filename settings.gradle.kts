@@ -24,5 +24,6 @@ include(
     ":app",
     ":data:data",
     ":data:database",
+    ":domain",
 )
  
