@@ -31,5 +31,11 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.core)
+
     testImplementation(libs.junit)
+
+    implementation(project(":data:database"))
+    implementation(project(":utils"))
 }
