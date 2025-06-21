@@ -28,3 +28,9 @@ android {
         jvmTarget = "11"
     }
 }
+
+dependencies {
+    implementation(libs.kotlinx.coroutines)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.core)
+}

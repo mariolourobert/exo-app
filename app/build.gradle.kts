@@ -65,4 +65,5 @@ dependencies {
 
     implementation(project(":data:data"))
     implementation(project(":data:database"))
+    implementation(project(":utils"))
 }
