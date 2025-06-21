@@ -25,5 +25,6 @@ include(
     ":data:data",
     ":data:database",
     ":domain",
+    ":utils",
 )
  
