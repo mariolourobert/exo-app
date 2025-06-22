@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +30,6 @@ import org.koin.androidx.compose.koinViewModel
 // For this exercise, we will use a hardcoded playlist Id:
 private const val PLAYLIST_ID = 1
 
-private val PLAYER_HEIGHT = 200.dp
 private val TRACK_HEIGHT = 56.dp
 
 @Composable
@@ -88,20 +88,26 @@ private fun LoadedState(
     Column(
         modifier = Modifier.fillMaxSize(),
     ) {
-        Player(uiState)
-        TracksList(uiState)
+        Player(
+            modifier = Modifier.weight(0.3f),
+            uiState = uiState,
+        )
+        TracksList(
+            modifier = Modifier.weight(0.7f),
+            uiState = uiState,
+        )
     }
 }
 
 @OptIn(UnstableApi::class)
 @Composable
 private fun Player(
+    modifier: Modifier = Modifier,
     uiState: PlayerScreenUiState.Loaded,
 ) {
     AndroidView(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(PLAYER_HEIGHT),
+        modifier = modifier
+            .fillMaxWidth(),
         factory = { context ->
             PlayerView(context).apply {
                 setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
@@ -118,9 +124,12 @@ private fun Player(
 
 @Composable
 private fun TracksList(
+    modifier: Modifier = Modifier,
     uiState: PlayerScreenUiState.Loaded,
 ) {
-    LazyColumn {
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+    ) {
         items(uiState.tracks) { trackUiModel ->
             Track(trackUiModel = trackUiModel)
         }
@@ -131,16 +140,22 @@ private fun TracksList(
 private fun Track(
     trackUiModel: PlayerScreenUiState.TrackUiModel,
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .height(TRACK_HEIGHT)
-            .padding(all = 16.dp), // Should use something like MaterialTheme.padding.SizeM
-        contentAlignment = Alignment.CenterStart,
     ) {
-        Text(
-            text = trackUiModel.trackName,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = 16.dp), // Should use something like MaterialTheme.padding.SizeM
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            Text(
+                text = trackUiModel.trackName,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        HorizontalDivider()
     }
 }
