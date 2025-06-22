@@ -1,4 +1,4 @@
-package com.deezer.exoapplication.app.ui.theme
+package com.deezer.exoapplication.presentation.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

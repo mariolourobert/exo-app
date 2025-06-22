@@ -1,8 +1,7 @@
-package com.deezer.exoapplication.app
+package com.deezer.exoapplication.presentation.player
 
 import androidx.annotation.OptIn
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
@@ -11,9 +10,8 @@ import androidx.media3.ui.PlayerView
 
 @OptIn(UnstableApi::class)
 @Composable
-fun Player(modifier: Modifier = Modifier) {
+fun PlayerScreen() {
     AndroidView(
-        modifier = modifier,
         factory = { context ->
             PlayerView(context).apply {
                 setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
