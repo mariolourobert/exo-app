@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.koin.core)
 
     testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
     testImplementation(kotlin("test"))
 
     implementation(project(":data:data"))

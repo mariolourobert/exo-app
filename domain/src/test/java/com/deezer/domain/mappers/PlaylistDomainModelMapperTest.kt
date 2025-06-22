@@ -2,8 +2,8 @@ package com.deezer.domain.mappers
 
 import com.deezer.data.models.nextPlaylistDataModel
 import com.deezer.exoapplication.domain.mappers.PlaylistDomainModelMapper
-import org.junit.Test
 import kotlin.random.Random
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class PlaylistDomainModelMapperTest {
