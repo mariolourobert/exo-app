@@ -7,10 +7,12 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(UnstableApi::class)
 @Composable
 fun PlayerScreen() {
+    val viewModel = koinViewModel<PlayerScreenViewModel>()
     AndroidView(
         factory = { context ->
             PlayerView(context).apply {

@@ -32,6 +32,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -41,6 +42,7 @@ dependencies {
     implementation(libs.androidx.media3.ui)
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
+    implementation(libs.koin.compose)
 
     testImplementation(libs.junit)
     testImplementation(kotlin("test"))
