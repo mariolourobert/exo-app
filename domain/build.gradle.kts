@@ -35,7 +35,11 @@ dependencies {
     implementation(libs.koin.core)
 
     testImplementation(libs.junit)
+    testImplementation(kotlin("test"))
 
     implementation(project(":data:data"))
     implementation(project(":utils"))
+
+    testImplementation(project(":testUtils"))
+    testImplementation(testFixtures(project(":data:data")))
 }
