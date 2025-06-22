@@ -40,6 +40,7 @@ dependencies {
     testImplementation(libs.junit)
 
     implementation(project(":data:database"))
+    implementation(project(":utils"))
 
     testFixturesImplementation(project(":testUtils"))
 }

@@ -7,7 +7,9 @@ import com.deezer.exoapplication.domain.models.PlaylistWithTracksDomainModel
 import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase.GetPlaylistWithTracksError
 import com.deezer.exoapplication.utils.DispatchersProvider
 import com.deezer.exoapplication.utils.ResultOf
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 
 internal class GetPlaylistWithTracksUseCaseImpl(
     private val playlistRepository: PlaylistRepository,
@@ -17,28 +19,25 @@ internal class GetPlaylistWithTracksUseCaseImpl(
 ) : GetPlaylistWithTracksUseCase {
     override suspend fun invoke(
         playlistId: Int,
-    ): ResultOf<PlaylistWithTracksDomainModel, GetPlaylistWithTracksError> =
-        withContext(dispatchersProvider.default) {
-            val playlistWithTracksDataModel =
-                playlistRepository.getPlaylistWithTracks(playlistId = playlistId)
-                    ?: return@withContext ResultOf.failure(
-                        GetPlaylistWithTracksError.PlaylistNotFound,
-                    )
+    ): Flow<ResultOf<PlaylistWithTracksDomainModel, GetPlaylistWithTracksError>> =
+        playlistRepository.getPlaylistWithTracks(playlistId = playlistId)
+            .map { playlistWithTracksDataModel ->
+                if (playlistWithTracksDataModel == null) {
+                    return@map ResultOf.failure(GetPlaylistWithTracksError.PlaylistNotFound)
+                }
 
-            val playlistDomainModel = playlistWithTracksDataModel.playlist
-                .let(playlistDomainModelMapper::toDomainModel)
-                ?: return@withContext ResultOf.failure(
-                    GetPlaylistWithTracksError.InvalidPlaylist,
+                val playlistDomainModel = playlistWithTracksDataModel.playlist
+                    .let(playlistDomainModelMapper::toDomainModel)
+                    ?: return@map ResultOf.failure(GetPlaylistWithTracksError.InvalidPlaylist)
+
+                val tracksDomainModels = playlistWithTracksDataModel.tracks
+                    .mapNotNull(trackDomainModelMapper::toDomainModel)
+
+                ResultOf.success(
+                    PlaylistWithTracksDomainModel(
+                        playlist = playlistDomainModel,
+                        tracks = tracksDomainModels,
+                    ),
                 )
-
-            val tracksDomainModels = playlistWithTracksDataModel.tracks
-                .mapNotNull(trackDomainModelMapper::toDomainModel)
-
-            ResultOf.success(
-                PlaylistWithTracksDomainModel(
-                    playlist = playlistDomainModel,
-                    tracks = tracksDomainModels,
-                ),
-            )
-        }
+            }.flowOn(dispatchersProvider.default)
 }
