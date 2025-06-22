@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.deezer.exoapplication.data"
+    namespace = "com.deezer.exoapplication.testUtils"
     compileSdk = 35
 
     defaultConfig {
@@ -27,19 +27,4 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    testFixtures {
-        enable = true
-    }
-}
-
-dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(platform(libs.koin.bom))
-    implementation(libs.koin.core)
-
-    testImplementation(libs.junit)
-
-    implementation(project(":data:database"))
-
-    testFixturesImplementation(project(":testUtils"))
 }
