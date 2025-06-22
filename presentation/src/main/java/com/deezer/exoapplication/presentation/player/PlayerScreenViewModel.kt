@@ -1,6 +1,96 @@
 package com.deezer.exoapplication.presentation.player
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.deezer.exoapplication.domain.models.PlaylistWithTracksDomainModel
+import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase
+import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase.GetPlaylistWithTracksError
+import com.deezer.exoapplication.utils.DispatchersProvider
+import com.deezer.exoapplication.utils.ResultOf
+import com.deezer.exoapplication.utils.mapStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class PlayerScreenViewModel : ViewModel() {
+class PlayerScreenViewModel(
+    private val getPlaylistWithTracksUseCase: GetPlaylistWithTracksUseCase,
+    private val playerScreenUiStateMapper: PlayerScreenUiStateMapper,
+    private val savedStateHandle: SavedStateHandle,
+    private val dispatchersProvider: DispatchersProvider,
+) : ViewModel() {
+    companion object {
+        private const val INTERNAL_STATE_KEY = "internal_state_key"
+    }
+
+    val uiState: StateFlow<PlayerScreenUiState> =
+        savedStateHandle.getStateFlow<PlayerScreenViewModelInternalState>(
+            key = INTERNAL_STATE_KEY,
+            initialValue = PlayerScreenViewModelInternalState.InitialLoading,
+        ).mapStateFlow(
+            coroutineScope = viewModelScope,
+            transform = playerScreenUiStateMapper::toUiState,
+        )
+
+    fun fetchDataIfNecessary(playlistId: Int) {
+        val currentState = getCurrentInternalState()
+
+        if (currentState is PlayerScreenViewModelInternalState.Loaded &&
+            currentState.playlist.uid == playlistId
+        ) {
+            return
+        }
+        viewModelScope.launch(dispatchersProvider.default) {
+            getPlaylistWithTracksUseCase(playlistId = playlistId)
+                .collect { result ->
+                    when (result) {
+                        is ResultOf.Success -> {
+                            onPlaylistReceived(playlistWithTracks = result.value)
+                        }
+
+                        is ResultOf.Failure -> {
+                            val internalState = PlayerScreenViewModelInternalState.Error(
+                                playlistId = playlistId,
+                                errorType = when (result.value) {
+                                    GetPlaylistWithTracksError.PlaylistNotFound ->
+                                        PlayerScreenViewModelInternalState.ErrorType.PLAYLIST_NOT_FOUND
+
+                                    GetPlaylistWithTracksError.InvalidPlaylist ->
+                                        PlayerScreenViewModelInternalState.ErrorType.INVALID_PLAYLIST
+                                }
+                            )
+                            publishNewInternalState(internalState)
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun onPlaylistReceived(
+        playlistWithTracks: PlaylistWithTracksDomainModel,
+    ) {
+        val currentState = getCurrentInternalState()
+        val newState = if (currentState is PlayerScreenViewModelInternalState.Loaded) {
+            // To keep the selected track if it exists
+            currentState.copy(
+                playlist = playlistWithTracks.playlist,
+                tracks = playlistWithTracks.tracks,
+            )
+        } else {
+            PlayerScreenViewModelInternalState.Loaded(
+                playlist = playlistWithTracks.playlist,
+                tracks = playlistWithTracks.tracks,
+            )
+        }
+        publishNewInternalState(newState)
+    }
+
+    private fun getCurrentInternalState(): PlayerScreenViewModelInternalState =
+        savedStateHandle[INTERNAL_STATE_KEY]
+            ?: PlayerScreenViewModelInternalState.InitialLoading
+
+    private fun publishNewInternalState(
+        internalState: PlayerScreenViewModelInternalState,
+    ) {
+        savedStateHandle[INTERNAL_STATE_KEY] = internalState
+    }
 }
