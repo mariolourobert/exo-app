@@ -79,6 +79,9 @@ class PlayerScreenViewModel(
 
             PlayerScreenViewModelIntent.OnCurrentTrackFinished ->
                 onCurrentTrackFinished()
+
+            is PlayerScreenViewModelIntent.OnRemoveTrackClick ->
+                onRemoveTrackClick(trackId = intent.trackId)
         }
     }
 
@@ -95,6 +98,10 @@ class PlayerScreenViewModel(
                 playTrack(track = selectedTrack)
             }
         }
+    }
+
+    private fun onRemoveTrackClick(trackId: Int) {
+        // TODO
     }
 
     private fun playTrack(track: TrackDomainModel) {
