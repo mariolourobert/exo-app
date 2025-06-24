@@ -1,6 +1,7 @@
 package com.deezer.exoapplication.presentation.player
 
 import androidx.annotation.OptIn
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,8 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -25,6 +28,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import com.deezer.exoapplication.utils.collectWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 
 // For this exercise, we will use a hardcoded playlist Id:
@@ -34,7 +38,23 @@ private val TRACK_HEIGHT = 56.dp
 
 @Composable
 fun PlayerScreen() {
+    val context = LocalContext.current
+    val exoPlayer: ExoPlayer = remember {
+        ExoPlayer.Builder(context).build()
+    }
     val viewModel = koinViewModel<PlayerScreenViewModel>()
+
+    viewModel.event.collectWithLifecycle { event ->
+        when (event) {
+            is PlayerScreenEvent.PlayTrack -> {
+                exoPlayer.setMediaItem(
+                    MediaItem.fromUri(event.trackUri),
+                )
+                exoPlayer.prepare()
+                exoPlayer.play()
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.fetchDataIfNecessary(
@@ -44,6 +64,16 @@ fun PlayerScreen() {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val onTrackClick = remember {
+        { trackUiModel: PlayerScreenUiState.TrackUiModel ->
+            viewModel.onIntent(
+                intent = PlayerScreenViewModelIntent.OnTrackClick(
+                    trackId = trackUiModel.uid,
+                ),
+            )
+        }
+    }
+
     when (state) {
         is PlayerScreenUiState.Loading ->
             LoadingState()
@@ -52,7 +82,11 @@ fun PlayerScreen() {
             ErrorState(uiState = state as PlayerScreenUiState.Error)
 
         is PlayerScreenUiState.Loaded ->
-            LoadedState(uiState = state as PlayerScreenUiState.Loaded)
+            LoadedState(
+                uiState = state as PlayerScreenUiState.Loaded,
+                exoPlayer = exoPlayer,
+                onTrackClick = onTrackClick,
+            )
     }
 }
 
@@ -84,6 +118,8 @@ private fun ErrorState(
 @Composable
 private fun LoadedState(
     uiState: PlayerScreenUiState.Loaded,
+    exoPlayer: ExoPlayer,
+    onTrackClick: (PlayerScreenUiState.TrackUiModel) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -91,10 +127,12 @@ private fun LoadedState(
         Player(
             modifier = Modifier.weight(0.3f),
             uiState = uiState,
+            exoPlayer = exoPlayer,
         )
         TracksList(
             modifier = Modifier.weight(0.7f),
             uiState = uiState,
+            onTrackClick = onTrackClick,
         )
     }
 }
@@ -104,6 +142,7 @@ private fun LoadedState(
 private fun Player(
     modifier: Modifier = Modifier,
     uiState: PlayerScreenUiState.Loaded,
+    exoPlayer: ExoPlayer,
 ) {
     AndroidView(
         modifier = modifier
@@ -112,11 +151,7 @@ private fun Player(
             PlayerView(context).apply {
                 setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
                 setShowShuffleButton(true)
-                val player = ExoPlayer.Builder(context).build()
-                setPlayer(player)
-                player.setMediaItem(MediaItem.fromUri("https://filesamples.com/samples/audio/mp3/sample1.mp3"))
-                player.prepare()
-                player.play()
+                setPlayer(exoPlayer)
             }
         }
     )
@@ -126,12 +161,13 @@ private fun Player(
 private fun TracksList(
     modifier: Modifier = Modifier,
     uiState: PlayerScreenUiState.Loaded,
+    onTrackClick: (PlayerScreenUiState.TrackUiModel) -> Unit,
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
     ) {
         items(uiState.tracks) { trackUiModel ->
-            Track(trackUiModel = trackUiModel)
+            Track(trackUiModel = trackUiModel, onTrackClick)
         }
     }
 }
@@ -139,11 +175,18 @@ private fun TracksList(
 @Composable
 private fun Track(
     trackUiModel: PlayerScreenUiState.TrackUiModel,
+    onClick: (PlayerScreenUiState.TrackUiModel) -> Unit,
 ) {
+    val onClickLambda = remember {
+        {
+            onClick(trackUiModel)
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .height(TRACK_HEIGHT)
+            .clickable(onClick = onClickLambda)
     ) {
         Box(
             modifier = Modifier

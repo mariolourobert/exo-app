@@ -9,6 +9,8 @@ import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase.Ge
 import com.deezer.exoapplication.utils.DispatchersProvider
 import com.deezer.exoapplication.utils.ResultOf
 import com.deezer.exoapplication.utils.mapStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -30,6 +32,10 @@ class PlayerScreenViewModel(
             coroutineScope = viewModelScope,
             transform = playerScreenUiStateMapper::toUiState,
         )
+
+    val event: SharedFlow<PlayerScreenEvent>
+        get() = _event
+    private val _event = MutableSharedFlow<PlayerScreenEvent>()
 
     fun fetchDataIfNecessary(playlistId: Int) {
         val currentState = getCurrentInternalState()
@@ -62,6 +68,36 @@ class PlayerScreenViewModel(
                         }
                     }
                 }
+        }
+    }
+
+    fun onIntent(intent: PlayerScreenViewModelIntent) {
+        when (intent) {
+            is PlayerScreenViewModelIntent.OnTrackClick ->
+                onTrackClick(trackId = intent.trackId)
+        }
+    }
+
+    private fun onTrackClick(trackId: Int) {
+        viewModelScope.launch(dispatchersProvider.default) {
+            val currentState = getCurrentInternalState()
+            if (currentState !is PlayerScreenViewModelInternalState.Loaded) {
+                return@launch
+            }
+            val selectedTrack = currentState.tracks.firstOrNull { it.uid == trackId }
+            if (selectedTrack == null) {
+                // TODO: Show error + log error
+            } else {
+                val newState = currentState.copy(
+                    selectedTrack = selectedTrack,
+                )
+                publishNewInternalState(newState)
+                _event.emit(
+                    PlayerScreenEvent.PlayTrack(
+                        trackUri = selectedTrack.trackUri,
+                    ),
+                )
+            }
         }
     }
 
