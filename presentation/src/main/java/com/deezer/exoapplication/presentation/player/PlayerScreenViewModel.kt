@@ -7,6 +7,7 @@ import com.deezer.exoapplication.domain.models.PlaylistWithTracksDomainModel
 import com.deezer.exoapplication.domain.models.TrackDomainModel
 import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase
 import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase.GetPlaylistWithTracksError
+import com.deezer.exoapplication.domain.usecases.RemoveTrackFromPlaylistUseCase
 import com.deezer.exoapplication.utils.DispatchersProvider
 import com.deezer.exoapplication.utils.ResultOf
 import com.deezer.exoapplication.utils.mapStateFlow
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 
 class PlayerScreenViewModel(
     private val getPlaylistWithTracksUseCase: GetPlaylistWithTracksUseCase,
+    private val removeTrackFromPlaylistUseCase: RemoveTrackFromPlaylistUseCase,
     private val playerScreenUiStateMapper: PlayerScreenUiStateMapper,
     private val savedStateHandle: SavedStateHandle,
     private val dispatchersProvider: DispatchersProvider,
@@ -101,7 +103,21 @@ class PlayerScreenViewModel(
     }
 
     private fun onRemoveTrackClick(trackId: Int) {
-        // TODO
+        viewModelScope.launch(dispatchersProvider.default) {
+            val currentState = getCurrentInternalState()
+            if (currentState !is PlayerScreenViewModelInternalState.Loaded) {
+                return@launch
+            }
+            val trackToRemove = currentState.tracks.firstOrNull { it.uid == trackId }
+            if (trackToRemove == null) {
+                // TODO: Show error + log error
+            } else {
+                removeTrackFromPlaylistUseCase(
+                    trackId = trackId,
+                    playlistId = currentState.playlist.uid,
+                )
+            }
+        }
     }
 
     private fun playTrack(track: TrackDomainModel) {
