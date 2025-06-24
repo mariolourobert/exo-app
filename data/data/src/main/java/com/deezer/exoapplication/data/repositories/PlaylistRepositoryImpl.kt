@@ -35,4 +35,8 @@ internal class PlaylistRepositoryImpl(
                 )
             }
             .flowOn(dispatchersProvider.default)
+
+    override suspend fun removeTrackFromPlaylist(trackId: Int, playlistId: Int): Boolean =
+        // playlistWithTracksDao.removeTrackFromPlaylist returns the number of rows deleted, it should be 1:
+        playlistWithTracksDao.removeTrackFromPlaylist(trackId = trackId, playlistId = playlistId) == 1
 }

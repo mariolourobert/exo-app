@@ -14,6 +14,10 @@ interface PlaylistWithTracksDao {
     @Query("SELECT * FROM Playlist WHERE playlistId = :playlistId")
     fun getPlaylistWithTracksAsFlow(playlistId: Int): Flow<PlaylistWithTracksQueryResult?>
 
+    @Transaction
+    @Query("DELETE FROM PlaylistTrackCrossRef WHERE trackId = :trackId AND playlistId = :playlistId")
+    suspend fun removeTrackFromPlaylist(trackId: Int, playlistId: Int): Int
+
     @Insert
     suspend fun insert(playlistTrackCrossRef: PlaylistTrackCrossRef)
 }
