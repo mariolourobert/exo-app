@@ -139,29 +139,32 @@ class PlayerScreenViewModel(
     }
 
     private fun onCurrentTrackFinished() {
-        val currentState = getCurrentInternalState()
-        if (currentState !is PlayerScreenViewModelInternalState.Loaded) {
-            return
-        }
+        viewModelScope.launch(dispatchersProvider.default) {
+            val currentState = getCurrentInternalState()
+            if (currentState !is PlayerScreenViewModelInternalState.Loaded) {
+                return@launch
+            }
 
-        val currentPlayingTrack = currentState.selectedTrack
-            ?: // TODO: log error
-            return
+            val currentPlayingTrack = currentState.selectedTrack
+                ?: // TODO: log error
+                return@launch
 
-        val nextTrack: TrackDomainModel? = currentState.tracks
-            .zipWithNext()
-            .firstOrNull { (first, _) ->
-                first.uid == currentPlayingTrack.uid
-            }?.second
+            val nextTrack: TrackDomainModel? = currentState.tracks
+                .zipWithNext()
+                .firstOrNull { (first, _) ->
+                    first.uid == currentPlayingTrack.uid
+                }?.second
 
-        if (nextTrack == null) {
-            // last track in the playlist
-            val newState = currentState.copy(
-                selectedTrack = null,
-            )
-            publishNewInternalState(newState)
-        } else {
-            playTrack(nextTrack)
+            if (nextTrack == null) {
+                // last track in the playlist
+                val newState = currentState.copy(
+                    selectedTrack = null,
+                )
+                publishNewInternalState(newState)
+                _event.emit(PlayerScreenEvent.UnloadAllTracks)
+            } else {
+                playTrack(nextTrack)
+            }
         }
     }
 

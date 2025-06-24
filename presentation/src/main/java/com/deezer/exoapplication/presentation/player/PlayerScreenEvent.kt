@@ -6,4 +6,5 @@ sealed interface PlayerScreenEvent {
     data class PlayTrack(
         val trackUri: Uri,
     ) : PlayerScreenEvent
+    data object UnloadAllTracks : PlayerScreenEvent
 }

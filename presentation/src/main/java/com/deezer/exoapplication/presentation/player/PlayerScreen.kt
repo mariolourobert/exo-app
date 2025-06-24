@@ -81,6 +81,10 @@ fun PlayerScreen() {
                 exoPlayer.prepare()
                 exoPlayer.play()
             }
+
+            PlayerScreenEvent.UnloadAllTracks -> {
+                exoPlayer.clearMediaItems()
+            }
         }
     }
 
