@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deezer.exoapplication.domain.models.PlaylistWithTracksDomainModel
+import com.deezer.exoapplication.domain.models.TrackDomainModel
 import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase
 import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase.GetPlaylistWithTracksError
 import com.deezer.exoapplication.utils.DispatchersProvider
@@ -75,6 +76,9 @@ class PlayerScreenViewModel(
         when (intent) {
             is PlayerScreenViewModelIntent.OnTrackClick ->
                 onTrackClick(trackId = intent.trackId)
+
+            PlayerScreenViewModelIntent.OnCurrentTrackFinished ->
+                onCurrentTrackFinished()
         }
     }
 
@@ -88,16 +92,53 @@ class PlayerScreenViewModel(
             if (selectedTrack == null) {
                 // TODO: Show error + log error
             } else {
-                val newState = currentState.copy(
-                    selectedTrack = selectedTrack,
-                )
-                publishNewInternalState(newState)
-                _event.emit(
-                    PlayerScreenEvent.PlayTrack(
-                        trackUri = selectedTrack.trackUri,
-                    ),
-                )
+                playTrack(track = selectedTrack)
             }
+        }
+    }
+
+    private fun playTrack(track: TrackDomainModel) {
+        viewModelScope.launch(dispatchersProvider.default) {
+            val currentState = getCurrentInternalState()
+            if (currentState !is PlayerScreenViewModelInternalState.Loaded) {
+                return@launch
+            }
+            val newState = currentState.copy(
+                selectedTrack = track,
+            )
+            publishNewInternalState(newState)
+            _event.emit(
+                PlayerScreenEvent.PlayTrack(
+                    trackUri = track.trackUri,
+                ),
+            )
+        }
+    }
+
+    private fun onCurrentTrackFinished() {
+        val currentState = getCurrentInternalState()
+        if (currentState !is PlayerScreenViewModelInternalState.Loaded) {
+            return
+        }
+
+        val currentPlayingTrack = currentState.selectedTrack
+            ?: // TODO: log error
+            return
+
+        val nextTrack: TrackDomainModel? = currentState.tracks
+            .zipWithNext()
+            .firstOrNull { (first, _) ->
+                first.uid == currentPlayingTrack.uid
+            }?.second
+
+        if (nextTrack == null) {
+            // last track in the playlist
+            val newState = currentState.copy(
+                selectedTrack = null,
+            )
+            publishNewInternalState(newState)
+        } else {
+            playTrack(nextTrack)
         }
     }
 

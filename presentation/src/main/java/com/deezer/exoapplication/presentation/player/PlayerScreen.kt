@@ -1,5 +1,6 @@
 package com.deezer.exoapplication.presentation.player
 
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -27,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
@@ -40,11 +43,30 @@ private val TRACK_HEIGHT = 56.dp
 
 @Composable
 fun PlayerScreen() {
+    val viewModel = koinViewModel<PlayerScreenViewModel>()
     val context = LocalContext.current
     val exoPlayer: ExoPlayer = remember {
-        ExoPlayer.Builder(context).build()
+        ExoPlayer.Builder(context)
+            .build()
     }
-    val viewModel = koinViewModel<PlayerScreenViewModel>()
+    val exoPlayerListener = remember {
+        object  : Player.Listener {
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                if (playbackState == Player.STATE_ENDED) {
+                    viewModel.onIntent(
+                        intent = PlayerScreenViewModelIntent.OnCurrentTrackFinished,
+                    )
+                }
+            }
+        }
+    }
+    DisposableEffect(Unit) {
+        exoPlayer.addListener(exoPlayerListener)
+        onDispose {
+            exoPlayer.removeListener(exoPlayerListener)
+        }
+    }
 
     viewModel.event.collectWithLifecycle { event ->
         when (event) {
