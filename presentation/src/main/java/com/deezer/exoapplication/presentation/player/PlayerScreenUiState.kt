@@ -18,5 +18,6 @@ sealed interface PlayerScreenUiState {
     data class TrackUiModel(
         val uid: Int,
         val trackName: String,
+        val isPlaying: Boolean,
     )
 }

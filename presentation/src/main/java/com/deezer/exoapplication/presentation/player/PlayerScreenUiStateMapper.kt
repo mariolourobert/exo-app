@@ -39,16 +39,23 @@ class PlayerScreenUiStateMapper {
     ): PlayerScreenUiState.Loaded =
         PlayerScreenUiState.Loaded(
             tracks = internalState.tracks
-                .map(::toUiModel)
+                .map {
+                    toUiModel(
+                        track = it,
+                        selectedTrack = internalState.selectedTrack,
+                    )
+                }
                 .toImmutableList(),
             currentPlayedTrackName = internalState.selectedTrack?.trackName,
         )
 
     private fun toUiModel(
         track: TrackDomainModel,
+        selectedTrack: TrackDomainModel?,
     ): TrackUiModel =
         TrackUiModel(
             uid = track.uid,
             trackName = track.trackName,
+            isPlaying = track == selectedTrack,
         )
 }

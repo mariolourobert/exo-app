@@ -20,7 +20,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -194,11 +196,40 @@ private fun Track(
                 .padding(all = 16.dp), // Should use something like MaterialTheme.padding.SizeM
             contentAlignment = Alignment.CenterStart,
         ) {
+            val fontWeight = if (trackUiModel.isPlaying) {
+                FontWeight.Bold
+            } else {
+                FontWeight.Normal
+            }
             Text(
                 text = trackUiModel.trackName,
                 modifier = Modifier.fillMaxWidth(),
+                fontWeight = fontWeight,
             )
         }
         HorizontalDivider()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TrackPreview() {
+    Column {
+        Track(
+            trackUiModel = PlayerScreenUiState.TrackUiModel(
+                uid = 1,
+                trackName = "Track name playing",
+                isPlaying = true,
+            ),
+            onClick = {},
+        )
+        Track(
+            trackUiModel = PlayerScreenUiState.TrackUiModel(
+                uid = 1,
+                trackName = "Track name",
+                isPlaying = false,
+            ),
+            onClick = {},
+        )
     }
 }
