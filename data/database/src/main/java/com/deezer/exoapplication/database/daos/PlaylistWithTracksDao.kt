@@ -2,6 +2,7 @@ package com.deezer.exoapplication.database.daos
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.deezer.exoapplication.database.entities.PlaylistTrackCrossRef
@@ -16,12 +17,12 @@ interface PlaylistWithTracksDao {
 
     @Transaction
     @Query("SELECT * FROM Playlist WHERE playlistId = :playlistId")
-    fun getPlaylistWithTracks(playlistId: Int): PlaylistWithTracksQueryResult?
+    suspend fun getPlaylistWithTracks(playlistId: Int): PlaylistWithTracksQueryResult?
 
     @Transaction
     @Query("DELETE FROM PlaylistTrackCrossRef WHERE trackId = :trackId AND playlistId = :playlistId")
     suspend fun removeTrackFromPlaylist(trackId: Int, playlistId: Int): Int
 
-    @Insert
-    suspend fun insert(playlistTrackCrossRef: PlaylistTrackCrossRef): Int
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(playlistTrackCrossRef: PlaylistTrackCrossRef): Long?
 }

@@ -63,5 +63,5 @@ internal class PlaylistRepositoryImpl(
                 trackId = trackId,
                 playlistId = playlistId,
             )
-        ) == 1
+        ) != null
 }

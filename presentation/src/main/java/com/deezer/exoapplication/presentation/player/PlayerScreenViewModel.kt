@@ -5,12 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deezer.exoapplication.domain.models.PlaylistWithTracksDomainModel
 import com.deezer.exoapplication.domain.models.TrackDomainModel
+import com.deezer.exoapplication.domain.usecases.AddTrackToPlaylistUseCase
 import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase
 import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase.GetPlaylistWithTracksError
 import com.deezer.exoapplication.domain.usecases.RemoveTrackFromPlaylistUseCase
 import com.deezer.exoapplication.utils.DispatchersProvider
 import com.deezer.exoapplication.utils.ResultOf
 import com.deezer.exoapplication.utils.mapStateFlow
+import com.deezer.exoapplication.utils.onFailure
+import com.deezer.exoapplication.utils.onSuccess
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +22,7 @@ import kotlinx.coroutines.launch
 class PlayerScreenViewModel(
     private val getPlaylistWithTracksUseCase: GetPlaylistWithTracksUseCase,
     private val removeTrackFromPlaylistUseCase: RemoveTrackFromPlaylistUseCase,
+    private val addTrackToPlaylistUseCase: AddTrackToPlaylistUseCase,
     private val playerScreenUiStateMapper: PlayerScreenUiStateMapper,
     private val savedStateHandle: SavedStateHandle,
     private val dispatchersProvider: DispatchersProvider,
@@ -161,7 +165,19 @@ class PlayerScreenViewModel(
             if (currentState !is PlayerScreenViewModelInternalState.Loaded) {
                 return@launch
             }
-            // TODO : fetch and add the new track to the current playlist
+
+            addTrackToPlaylistUseCase(
+                trackId = trackId,
+                playlistId = currentState.playlist.uid,
+            ).onSuccess {
+                publishNewInternalState(
+                    currentState.copy(
+                        isLibraryDialogVisible = false,
+                    )
+                )
+            }.onFailure {
+                // TODO : show error + log error
+            }
         }
     }
 
