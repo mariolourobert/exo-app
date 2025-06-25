@@ -28,6 +28,9 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    testFixtures {
+        enable = true
+    }
 }
 
 dependencies {
@@ -44,6 +47,8 @@ dependencies {
 
     implementation(project(":data:data"))
     implementation(project(":utils"))
+
+    testFixturesImplementation(project(":testUtils"))
 
     testImplementation(project(":testUtils"))
     testImplementation(testFixtures(project(":data:data")))
