@@ -2,6 +2,8 @@ package com.deezer.exoapplication.domain.di
 
 import com.deezer.exoapplication.domain.mappers.PlaylistDomainModelMapper
 import com.deezer.exoapplication.domain.mappers.TrackDomainModelMapper
+import com.deezer.exoapplication.domain.usecases.GetAllTracksUseCase
+import com.deezer.exoapplication.domain.usecases.GetAllTracksUseCaseImpl
 import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase
 import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCaseImpl
 import com.deezer.exoapplication.domain.usecases.RemoveTrackFromPlaylistUseCase
@@ -15,4 +17,5 @@ val domainKoinModule = module {
     factoryOf(::TrackDomainModelMapper)
     factoryOf(::GetPlaylistWithTracksUseCaseImpl) bind GetPlaylistWithTracksUseCase::class
     factoryOf(::RemoveTrackFromPlaylistUseCaseImpl) bind RemoveTrackFromPlaylistUseCase::class
+    factoryOf(::GetAllTracksUseCaseImpl) bind GetAllTracksUseCase::class
 }
