@@ -1,20 +1,15 @@
 # Basic Exoplayer app
 
-This is a bootstrap of Exoplayer powered application, only able to load an url and play it for now.
+This is a basic app that allows to manage a Playlist.
 
-The objective is to implement a basic play queue management on your own. Do not use ExoPlayer playlist API.
-App should allow to:
+This app follows a clean architecture, divided in 3 main layers.
 
-- Display the current media queue, alongside the player view
-- Chain playback from a media to the next one in the list
-- Start playback of any media in the queue on click on this media
-- Add or remove a media from this queue
+presentation (single module) - contains all the Screens and ViewModels
+domain (single module) - contains the business logic (that is quite simple here) as multiples UseCases
+data (folder that contains 2 modules):
+- data - contains the repositories
+- database - contains the Room database and the DAOs
 
-Media can be local media (on device), embedded in assets or urls to stream from, your choice!
+Dependencies between layers don't follow the clean architecture by-the-book. Here the domain layer depends on the data layer.  It's intended, since it allows to build domain models (models returned by the domain layer) in the domain layer. The aim is to concentrate the logic in the domain layer and to let the presentation layer read domain models without much logic.
 
-The goal of this exercise is to implement the player and queue list modules how you prefer, with the framework you want (Androidx Viewmodel is used to bootstrap the app here, keep it or replace it, it doesn’t matter for this exercice).
-You can even start from scratch if you prefer.
-UI appearance and UI robustness are not important, we are focusing on the under layers and how they are exposed and used.
-
-
-We are not expecting any particular architectural pattern or framework to use. This will be a basis for the next interview meeting.
+As presentation pattern, this app follows the Model-View-ViewModel design pattern, well known in the Android ecosystem.
