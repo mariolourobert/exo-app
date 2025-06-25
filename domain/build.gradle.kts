@@ -39,6 +39,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.robolectric)
+    testImplementation(libs.turbine)
     testImplementation(kotlin("test"))
 
     implementation(project(":data:data"))
