@@ -5,6 +5,8 @@ import com.deezer.exoapplication.database.ExoAppDatabase
 import com.deezer.exoapplication.database.daos.PlaylistDao
 import com.deezer.exoapplication.database.daos.PlaylistWithTracksDao
 import com.deezer.exoapplication.database.daos.TrackDao
+import com.deezer.exoapplication.database.debug.PopulateDatabaseManager
+import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 val databaseKoinModule = module {
@@ -24,4 +26,5 @@ val databaseKoinModule = module {
     factory<PlaylistWithTracksDao> {
         get<ExoAppDatabase>().playlistWithTracksDao()
     }
+    factoryOf(::PopulateDatabaseManager)
 }
