@@ -12,4 +12,9 @@ internal class TrackRepositoryImpl(
         trackDao.getAllTracks().mapNotNull { trackEntity ->
             trackDataModelMapper.toDataModel(trackEntity)
         }
+
+    override suspend fun getTrackById(trackId: Int): TrackDataModel? =
+        trackDao.getTrackById(trackId = trackId)?.let { trackEntity ->
+            trackDataModelMapper.toDataModel(trackEntity)
+        }
 }

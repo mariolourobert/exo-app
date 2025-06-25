@@ -12,7 +12,7 @@ interface TrackDao {
     suspend fun insert(track: TrackEntity)
 
     @Query("SELECT * FROM tracks WHERE trackId = :trackId")
-    suspend fun getTrack(trackId: Int): TrackEntity?
+    suspend fun getTrackById(trackId: Int): TrackEntity?
 
     @Query("SELECT * FROM tracks")
     suspend fun getAllTracks(): List<TrackEntity>

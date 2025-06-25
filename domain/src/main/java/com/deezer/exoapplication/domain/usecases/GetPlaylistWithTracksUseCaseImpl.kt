@@ -20,7 +20,7 @@ internal class GetPlaylistWithTracksUseCaseImpl(
     override suspend fun invoke(
         playlistId: Int,
     ): Flow<ResultOf<PlaylistWithTracksDomainModel, GetPlaylistWithTracksError>> =
-        playlistRepository.getPlaylistWithTracks(playlistId = playlistId)
+        playlistRepository.getPlaylistWithTracksAsFlow(playlistId = playlistId)
             .map { playlistWithTracksDataModel ->
                 if (playlistWithTracksDataModel == null) {
                     return@map ResultOf.failure(GetPlaylistWithTracksError.PlaylistNotFound)
