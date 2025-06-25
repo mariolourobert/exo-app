@@ -258,7 +258,6 @@ private fun LoadedState(
     ) {
         Player(
             modifier = Modifier.weight(0.3f),
-            uiState = uiState,
             exoPlayer = exoPlayer,
         )
         TracksList(
@@ -275,7 +274,6 @@ private fun LoadedState(
 @Composable
 private fun Player(
     modifier: Modifier = Modifier,
-    uiState: PlayerScreenUiState.Loaded,
     exoPlayer: ExoPlayer,
 ) {
     AndroidView(
