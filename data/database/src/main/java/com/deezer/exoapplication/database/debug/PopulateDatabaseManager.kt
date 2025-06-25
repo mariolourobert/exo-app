@@ -53,7 +53,13 @@ class PopulateDatabaseManager(
             trackDao.insert(
                 TrackEntity(
                     trackName = "Track 5",
-                    trackUri = "https://filesamples.com/samples/audio/mp3/sample5.mp3",
+                    trackUri = "https://filesamples.com/samples/audio/mp3/sample1.mp3",
+                )
+            )
+            trackDao.insert(
+                TrackEntity(
+                    trackName = "Track 6",
+                    trackUri = "https://filesamples.com/samples/audio/mp3/sample2.mp3",
                 )
             )
         }

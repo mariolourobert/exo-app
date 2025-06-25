@@ -92,7 +92,8 @@ fun PlayerScreen() {
                 exoPlayer.play()
             }
 
-            PlayerScreenEvent.UnloadAllTracks -> {
+            PlayerScreenEvent.StopAndUnloadAllTracks -> {
+                exoPlayer.stop()
                 exoPlayer.clearMediaItems()
             }
         }
@@ -300,7 +301,10 @@ private fun TracksList(
     LazyColumn(
         modifier = modifier.fillMaxSize(),
     ) {
-        items(uiState.tracks) { trackUiModel ->
+        items(
+            items = uiState.tracks,
+            key = { trackUiModel -> trackUiModel.uid },
+        ) { trackUiModel ->
             Track(
                 trackUiModel = trackUiModel,
                 onTrackClick = onTrackClick,

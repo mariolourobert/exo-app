@@ -122,14 +122,21 @@ class PlayerScreenViewModel(
                 return@launch
             }
             val trackToRemove = currentState.tracks.firstOrNull { it.uid == trackId }
+
             if (trackToRemove == null) {
                 // TODO: Show error + log error
-            } else {
-                removeTrackFromPlaylistUseCase(
-                    trackId = trackId,
-                    playlistId = currentState.playlist.uid,
-                )
+                return@launch
             }
+
+            if (trackToRemove == currentState.selectedTrack) {
+                // If the track to remove is currently selected, we need to stop playing it before removing
+                _event.emit(PlayerScreenEvent.StopAndUnloadAllTracks)
+            }
+
+            removeTrackFromPlaylistUseCase(
+                trackId = trackId,
+                playlistId = currentState.playlist.uid,
+            )
         }
     }
 
@@ -222,7 +229,7 @@ class PlayerScreenViewModel(
                     selectedTrack = null,
                 )
                 publishNewInternalState(newState)
-                _event.emit(PlayerScreenEvent.UnloadAllTracks)
+                _event.emit(PlayerScreenEvent.StopAndUnloadAllTracks)
             } else {
                 playTrack(nextTrack)
             }
@@ -234,10 +241,14 @@ class PlayerScreenViewModel(
     ) {
         val currentState = getCurrentInternalState()
         val newState = if (currentState is PlayerScreenViewModelInternalState.Loaded) {
-            // To keep the selected track if it exists
+            // To keep the selected track if it exists, and if it's still in the playlist
+            val selectedTrack = currentState.selectedTrack?.takeIf { selectedTrack ->
+                playlistWithTracks.tracks.contains(selectedTrack)
+            }
             currentState.copy(
                 playlist = playlistWithTracks.playlist,
                 tracks = playlistWithTracks.tracks,
+                selectedTrack = selectedTrack,
             )
         } else {
             PlayerScreenViewModelInternalState.Loaded(
