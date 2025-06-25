@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +38,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import com.deezer.exoapplication.presentation.R
 import com.deezer.exoapplication.utils.collectWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 
@@ -130,6 +132,9 @@ fun PlayerScreen() {
                 onTrackClick = onTrackClick,
                 onRemoveTrackClick = onRemoveTrackClick,
             )
+
+        PlayerScreenUiState.EmptyPlaylist ->
+            EmptyState()
     }
 }
 
@@ -153,6 +158,19 @@ private fun ErrorState(
     ) {
         Text(
             text = uiState.message.asString(),
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
+private fun EmptyState() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = stringResource(R.string.playerscreen_empty_state),
             textAlign = TextAlign.Center,
         )
     }

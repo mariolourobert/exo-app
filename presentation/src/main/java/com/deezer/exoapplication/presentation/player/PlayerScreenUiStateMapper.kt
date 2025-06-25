@@ -12,16 +12,16 @@ class PlayerScreenUiStateMapper {
     ): PlayerScreenUiState =
         when (internalState) {
             is PlayerScreenViewModelInternalState.Loaded ->
-                toLoadedState(internalState = internalState)
+                mapLoadedState(internalState = internalState)
 
             PlayerScreenViewModelInternalState.InitialLoading ->
                 PlayerScreenUiState.Loading
 
             is PlayerScreenViewModelInternalState.Error ->
-                toErrorState(internalState = internalState)
+                mapErrorState(internalState = internalState)
         }
 
-    private fun toErrorState(
+    private fun mapErrorState(
         internalState: PlayerScreenViewModelInternalState.Error,
     ): PlayerScreenUiState.Error =
         PlayerScreenUiState.Error(
@@ -34,20 +34,24 @@ class PlayerScreenUiStateMapper {
             },
         )
 
-    private fun toLoadedState(
+    private fun mapLoadedState(
         internalState: PlayerScreenViewModelInternalState.Loaded,
-    ): PlayerScreenUiState.Loaded =
-        PlayerScreenUiState.Loaded(
-            tracks = internalState.tracks
-                .map {
-                    toUiModel(
-                        track = it,
-                        selectedTrack = internalState.selectedTrack,
-                    )
-                }
-                .toImmutableList(),
-            currentPlayedTrackName = internalState.selectedTrack?.trackName,
-        )
+    ): PlayerScreenUiState =
+        if (internalState.tracks.isEmpty()) {
+            PlayerScreenUiState.EmptyPlaylist
+        } else {
+            PlayerScreenUiState.Loaded(
+                tracks = internalState.tracks
+                    .map {
+                        toUiModel(
+                            track = it,
+                            selectedTrack = internalState.selectedTrack,
+                        )
+                    }
+                    .toImmutableList(),
+                currentPlayedTrackName = internalState.selectedTrack?.trackName,
+            )
+        }
 
     private fun toUiModel(
         track: TrackDomainModel,

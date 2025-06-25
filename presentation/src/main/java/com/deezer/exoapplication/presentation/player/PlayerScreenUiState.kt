@@ -9,6 +9,8 @@ sealed interface PlayerScreenUiState {
         val currentPlayedTrackName: String?,
     ) : PlayerScreenUiState
 
+    data object EmptyPlaylist : PlayerScreenUiState
+
     data object Loading : PlayerScreenUiState
 
     data class Error(
