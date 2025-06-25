@@ -169,6 +169,7 @@ fun PlayerScreen() {
                     exoPlayer = exoPlayer,
                     onTrackClick = onTrackClick,
                     onRemoveTrackClick = onRemoveTrackClick,
+                    onAddTrackClick = onAddTrackClick,
                 )
 
             is PlayerScreenUiState.EmptyPlaylist ->
@@ -238,20 +239,9 @@ private fun EmptyState(
         Spacer(
             modifier = Modifier.height(16.dp),
         )
-        Button(
+        AddTrackButton(
             onClick = onAddTrackClick,
-        ) {
-            Row {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add track",
-                )
-                Text(
-                    text = stringResource(R.string.playerscreen_add_track),
-                    textAlign = TextAlign.Center,
-                )
-            }
-        }
+        )
     }
 }
 
@@ -261,6 +251,7 @@ private fun LoadedState(
     exoPlayer: ExoPlayer,
     onTrackClick: (PlayerScreenUiState.TrackUiModel) -> Unit,
     onRemoveTrackClick: (PlayerScreenUiState.TrackUiModel) -> Unit,
+    onAddTrackClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -275,6 +266,7 @@ private fun LoadedState(
             uiState = uiState,
             onTrackClick = onTrackClick,
             onRemoveTrackClick = onRemoveTrackClick,
+            onAddTrackClick = onAddTrackClick,
         )
     }
 }
@@ -305,6 +297,7 @@ private fun TracksList(
     uiState: PlayerScreenUiState.Loaded,
     onTrackClick: (PlayerScreenUiState.TrackUiModel) -> Unit,
     onRemoveTrackClick: (PlayerScreenUiState.TrackUiModel) -> Unit,
+    onAddTrackClick: () -> Unit,
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -315,6 +308,18 @@ private fun TracksList(
                 onTrackClick = onTrackClick,
                 onRemoveClick = onRemoveTrackClick,
             )
+        }
+        item {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                AddTrackButton(
+                    onClick = onAddTrackClick,
+                )
+            }
         }
     }
 }
@@ -368,6 +373,26 @@ private fun Track(
             )
         }
         HorizontalDivider()
+    }
+}
+
+@Composable
+private fun AddTrackButton(
+    onClick: () -> Unit,
+) {
+    Button(
+        onClick = onClick,
+    ) {
+        Row {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add track",
+            )
+            Text(
+                text = stringResource(R.string.playerscreen_add_track),
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 
