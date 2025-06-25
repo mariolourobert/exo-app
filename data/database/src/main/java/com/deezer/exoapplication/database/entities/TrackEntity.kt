@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "tracks")
+@Entity(tableName = "track")
 data class TrackEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "trackId")

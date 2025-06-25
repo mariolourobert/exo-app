@@ -12,12 +12,12 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PlaylistWithTracksDao {
     @Transaction
-    @Query("SELECT * FROM Playlist WHERE playlistId = :playlistId")
-    fun getPlaylistWithTracksAsFlow(playlistId: Int): Flow<PlaylistWithTracksQueryResult?>
+    @Query(getPlaylistWithTracksQuery)
+    fun getPlaylistWithTracksAsFlow(playlistId: Int): Flow<List<PlaylistWithTracksQueryResult>>
 
     @Transaction
-    @Query("SELECT * FROM Playlist WHERE playlistId = :playlistId")
-    suspend fun getPlaylistWithTracks(playlistId: Int): PlaylistWithTracksQueryResult?
+    @Query(getPlaylistWithTracksQuery)
+    suspend fun getPlaylistWithTracks(playlistId: Int): List<PlaylistWithTracksQueryResult>
 
     @Transaction
     @Query("DELETE FROM PlaylistTrackCrossRef WHERE trackId = :trackId AND playlistId = :playlistId")
@@ -26,3 +26,12 @@ interface PlaylistWithTracksDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(playlistTrackCrossRef: PlaylistTrackCrossRef): Long?
 }
+
+private const val getPlaylistWithTracksQuery =
+    """
+        SELECT PlaylistTrackCrossRef.insertedAt,Track.trackId,Track.trackName,Track.trackUri
+        FROM PlaylistTrackCrossRef
+        INNER JOIN Track ON PlaylistTrackCrossRef.trackId = Track.trackId
+        WHERE PlaylistTrackCrossRef.playlistId = :playlistId
+        ORDER BY PlaylistTrackCrossRef.insertedAt
+    """

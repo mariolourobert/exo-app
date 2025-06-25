@@ -11,9 +11,9 @@ interface TrackDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(track: TrackEntity)
 
-    @Query("SELECT * FROM tracks WHERE trackId = :trackId")
+    @Query("SELECT * FROM track WHERE trackId = :trackId")
     suspend fun getTrackById(trackId: Int): TrackEntity?
 
-    @Query("SELECT * FROM tracks")
+    @Query("SELECT * FROM track")
     suspend fun getAllTracks(): List<TrackEntity>
 }

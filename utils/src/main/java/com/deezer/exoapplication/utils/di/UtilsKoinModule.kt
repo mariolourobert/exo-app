@@ -1,7 +1,9 @@
 package com.deezer.exoapplication.utils.di
 
 import com.deezer.exoapplication.utils.DispatchersProvider
+import com.deezer.exoapplication.utils.TimeProvider
 import kotlinx.coroutines.Dispatchers
+import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 val utilsKoinModule = module {
@@ -13,4 +15,5 @@ val utilsKoinModule = module {
             immediate = Dispatchers.Main.immediate,
         )
     }
+    factoryOf(::TimeProvider)
 }
