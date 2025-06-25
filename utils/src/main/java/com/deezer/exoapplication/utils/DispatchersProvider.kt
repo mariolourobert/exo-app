@@ -2,7 +2,7 @@ package com.deezer.exoapplication.utils
 
 import kotlinx.coroutines.CoroutineDispatcher
 
-data class DispatchersProvider(
+open class DispatchersProvider(
     val main: CoroutineDispatcher,
     val default: CoroutineDispatcher,
     val io: CoroutineDispatcher,

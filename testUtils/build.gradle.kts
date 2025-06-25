@@ -28,3 +28,8 @@ android {
         jvmTarget = "11"
     }
 }
+
+dependencies {
+    implementation(project(":utils"))
+    implementation(libs.kotlinx.coroutines.test)
+}
