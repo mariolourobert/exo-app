@@ -79,6 +79,9 @@ fun PlayerScreen() {
         exoPlayer.addListener(exoPlayerListener)
         onDispose {
             exoPlayer.removeListener(exoPlayerListener)
+            exoPlayer.stop()
+            exoPlayer.clearMediaItems()
+            exoPlayer.release()
         }
     }
 
