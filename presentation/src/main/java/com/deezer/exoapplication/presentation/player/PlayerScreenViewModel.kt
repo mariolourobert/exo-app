@@ -84,6 +84,15 @@ class PlayerScreenViewModel(
 
             is PlayerScreenViewModelIntent.OnRemoveTrackClick ->
                 onRemoveTrackClick(trackId = intent.trackId)
+
+            PlayerScreenViewModelIntent.OnAddTrackClick ->
+                onAddTrackClick()
+
+            PlayerScreenViewModelIntent.OnLibraryDialogDismissRequest ->
+                onLibraryDialogDismissRequest()
+
+            is PlayerScreenViewModelIntent.OnNewTrackAddedToPlaylist ->
+                onNewTrackAddedToPlaylist(trackId = intent.trackId)
         }
     }
 
@@ -117,6 +126,42 @@ class PlayerScreenViewModel(
                     playlistId = currentState.playlist.uid,
                 )
             }
+        }
+    }
+
+    private fun onAddTrackClick() {
+        val currentState = getCurrentInternalState()
+
+        if (currentState !is PlayerScreenViewModelInternalState.Loaded) {
+            return
+        }
+
+        val newState = currentState.copy(
+            isLibraryDialogVisible = true,
+        )
+        publishNewInternalState(newState)
+    }
+
+    private fun onLibraryDialogDismissRequest() {
+        val currentState = getCurrentInternalState()
+
+        if (currentState !is PlayerScreenViewModelInternalState.Loaded) {
+            return
+        }
+
+        val newState = currentState.copy(
+            isLibraryDialogVisible = false,
+        )
+        publishNewInternalState(newState)
+    }
+
+    private fun onNewTrackAddedToPlaylist(trackId: Int) {
+        viewModelScope.launch(dispatchersProvider.default) {
+            val currentState = getCurrentInternalState()
+            if (currentState !is PlayerScreenViewModelInternalState.Loaded) {
+                return@launch
+            }
+            // TODO : fetch and add the new track to the current playlist
         }
     }
 

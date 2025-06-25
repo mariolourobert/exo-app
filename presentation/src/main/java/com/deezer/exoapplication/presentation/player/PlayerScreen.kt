@@ -6,14 +6,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -32,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -39,6 +46,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.deezer.exoapplication.presentation.R
+import com.deezer.exoapplication.presentation.library.LibraryScreen
 import com.deezer.exoapplication.utils.collectWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 
@@ -96,7 +104,7 @@ fun PlayerScreen() {
         )
     }
 
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val onTrackClick = remember {
         { trackUiModel: PlayerScreenUiState.TrackUiModel ->
@@ -118,23 +126,74 @@ fun PlayerScreen() {
         }
     }
 
-    when (state) {
-        is PlayerScreenUiState.Loading ->
-            LoadingState()
-
-        is PlayerScreenUiState.Error ->
-            ErrorState(uiState = state as PlayerScreenUiState.Error)
-
-        is PlayerScreenUiState.Loaded ->
-            LoadedState(
-                uiState = state as PlayerScreenUiState.Loaded,
-                exoPlayer = exoPlayer,
-                onTrackClick = onTrackClick,
-                onRemoveTrackClick = onRemoveTrackClick,
+    val onAddTrackClick = remember {
+        {
+            viewModel.onIntent(
+                intent = PlayerScreenViewModelIntent.OnAddTrackClick,
             )
+        }
+    }
 
-        PlayerScreenUiState.EmptyPlaylist ->
-            EmptyState()
+    val onLibraryDialogDismissRequest = remember {
+        {
+            viewModel.onIntent(
+                intent = PlayerScreenViewModelIntent.OnLibraryDialogDismissRequest,
+            )
+        }
+    }
+
+    val onNewTrackAddedToPlaylist = remember {
+        { trackId: Int ->
+            viewModel.onIntent(
+                intent = PlayerScreenViewModelIntent.OnNewTrackAddedToPlaylist(
+                    trackId = trackId,
+                ),
+            )
+        }
+    }
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        when (uiState) {
+            is PlayerScreenUiState.Loading ->
+                LoadingState()
+
+            is PlayerScreenUiState.Error ->
+                ErrorState(uiState = uiState as PlayerScreenUiState.Error)
+
+            is PlayerScreenUiState.Loaded ->
+                LoadedState(
+                    uiState = uiState as PlayerScreenUiState.Loaded,
+                    exoPlayer = exoPlayer,
+                    onTrackClick = onTrackClick,
+                    onRemoveTrackClick = onRemoveTrackClick,
+                )
+
+            is PlayerScreenUiState.EmptyPlaylist ->
+                EmptyState(
+                    onAddTrackClick = onAddTrackClick,
+                )
+        }
+
+        if (uiState.isLibraryDialogVisible) {
+            Dialog(
+                onDismissRequest = onLibraryDialogDismissRequest,
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.7f)
+                        .padding(16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    LibraryScreen(
+                        onTrackClick = onNewTrackAddedToPlaylist,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -164,15 +223,35 @@ private fun ErrorState(
 }
 
 @Composable
-private fun EmptyState() {
-    Box(
+private fun EmptyState(
+    onAddTrackClick: () -> Unit,
+) {
+    Column(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = stringResource(R.string.playerscreen_empty_state),
             textAlign = TextAlign.Center,
         )
+        Spacer(
+            modifier = Modifier.height(16.dp),
+        )
+        Button(
+            onClick = onAddTrackClick,
+        ) {
+            Row {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add track",
+                )
+                Text(
+                    text = stringResource(R.string.playerscreen_add_track),
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
     }
 }
 

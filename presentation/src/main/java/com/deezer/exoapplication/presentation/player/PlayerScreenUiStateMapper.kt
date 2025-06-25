@@ -38,7 +38,9 @@ class PlayerScreenUiStateMapper {
         internalState: PlayerScreenViewModelInternalState.Loaded,
     ): PlayerScreenUiState =
         if (internalState.tracks.isEmpty()) {
-            PlayerScreenUiState.EmptyPlaylist
+            PlayerScreenUiState.EmptyPlaylist(
+                isLibraryDialogVisible = internalState.isLibraryDialogVisible,
+            )
         } else {
             PlayerScreenUiState.Loaded(
                 tracks = internalState.tracks
@@ -50,6 +52,7 @@ class PlayerScreenUiStateMapper {
                     }
                     .toImmutableList(),
                 currentPlayedTrackName = internalState.selectedTrack?.trackName,
+                isLibraryDialogVisible = internalState.isLibraryDialogVisible,
             )
         }
 

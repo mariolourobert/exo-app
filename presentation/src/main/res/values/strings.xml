@@ -3,5 +3,6 @@
     <string name="playerscreen_error_playlist_not_found">Playlist not found</string>
     <string name="playerscreen_error_invalid_playlist">Invalid playlist</string>
     <string name="playerscreen_empty_state">This playlist is empty</string>
+    <string name="playerscreen_add_track">Add a track</string>
     <string name="libraryscreen_empty_state">Your library is empty</string>
 </resources>

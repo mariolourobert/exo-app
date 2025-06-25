@@ -4,18 +4,30 @@ import com.deezer.exoapplication.presentation.utils.TextResource
 import kotlinx.collections.immutable.ImmutableList
 
 sealed interface PlayerScreenUiState {
+    val isLibraryDialogVisible: Boolean
+
     data class Loaded(
         val tracks: ImmutableList<TrackUiModel>,
         val currentPlayedTrackName: String?,
+        override val isLibraryDialogVisible: Boolean,
     ) : PlayerScreenUiState
 
-    data object EmptyPlaylist : PlayerScreenUiState
+    data class EmptyPlaylist(
+        override val isLibraryDialogVisible: Boolean,
+    ) : PlayerScreenUiState {
+    }
 
-    data object Loading : PlayerScreenUiState
+    data object Loading : PlayerScreenUiState {
+        override val isLibraryDialogVisible: Boolean
+            get() = false
+    }
 
     data class Error(
         val message: TextResource,
-    ) : PlayerScreenUiState
+    ) : PlayerScreenUiState {
+        override val isLibraryDialogVisible: Boolean
+            get() = false
+    }
 
     data class TrackUiModel(
         val uid: Int,

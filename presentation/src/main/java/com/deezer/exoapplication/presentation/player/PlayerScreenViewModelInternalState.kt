@@ -11,6 +11,7 @@ sealed interface PlayerScreenViewModelInternalState : Parcelable {
         val playlist: PlaylistDomainModel,
         val tracks: List<TrackDomainModel>,
         val selectedTrack: TrackDomainModel? = null,
+        val isLibraryDialogVisible: Boolean = false,
     ) : PlayerScreenViewModelInternalState
 
     @Parcelize
