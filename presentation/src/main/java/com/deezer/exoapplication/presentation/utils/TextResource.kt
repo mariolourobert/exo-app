@@ -1,5 +1,6 @@
 package com.deezer.exoapplication.presentation.utils
 
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -17,6 +18,13 @@ sealed interface TextResource {
         return when (this) {
             is FromString -> value
             is FromStringResource -> stringResource(stringResourceId, *args)
+        }
+    }
+
+    fun asString(context: Context): String {
+        return when (this) {
+            is FromString -> value
+            is FromStringResource -> context.getString(stringResourceId, *args)
         }
     }
 }

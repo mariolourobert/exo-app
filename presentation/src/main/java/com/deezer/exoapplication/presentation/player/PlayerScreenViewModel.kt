@@ -9,7 +9,10 @@ import com.deezer.exoapplication.domain.usecases.AddTrackToPlaylistUseCase
 import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase
 import com.deezer.exoapplication.domain.usecases.GetPlaylistWithTracksUseCase.GetPlaylistWithTracksError
 import com.deezer.exoapplication.domain.usecases.RemoveTrackFromPlaylistUseCase
+import com.deezer.exoapplication.presentation.R
+import com.deezer.exoapplication.presentation.utils.TextResource
 import com.deezer.exoapplication.utils.DispatchersProvider
+import com.deezer.exoapplication.utils.ErrorLogger
 import com.deezer.exoapplication.utils.ResultOf
 import com.deezer.exoapplication.utils.mapStateFlow
 import com.deezer.exoapplication.utils.onFailure
@@ -108,7 +111,15 @@ class PlayerScreenViewModel(
             }
             val selectedTrack = currentState.tracks.firstOrNull { it.uid == trackId }
             if (selectedTrack == null) {
-                // TODO: Show error + log error
+                ErrorLogger.logError(
+                    message = "onTrackClick: Track with ID $trackId not found in the playlist.",
+                )
+                _event.emit(
+                    PlayerScreenEvent.ShowError(
+                        message = TextResource.FromStringResource(R.string.generic_error),
+                    )
+                )
+                return@launch
             } else {
                 playTrack(track = selectedTrack)
             }
@@ -124,7 +135,14 @@ class PlayerScreenViewModel(
             val trackToRemove = currentState.tracks.firstOrNull { it.uid == trackId }
 
             if (trackToRemove == null) {
-                // TODO: Show error + log error
+                ErrorLogger.logError(
+                    message = "onRemoveTrackClick: Track with ID $trackId not found in the playlist.",
+                )
+                _event.emit(
+                    PlayerScreenEvent.ShowError(
+                        message = TextResource.FromStringResource(R.string.generic_error),
+                    )
+                )
                 return@launch
             }
 
@@ -183,7 +201,14 @@ class PlayerScreenViewModel(
                     )
                 )
             }.onFailure {
-                // TODO : show error + log error
+                ErrorLogger.logError(
+                    message = "onNewTrackAddedToPlaylist: Failed to add track with ID $trackId to playlist with ID ${currentState.playlist.uid}.",
+                )
+                _event.emit(
+                    PlayerScreenEvent.ShowError(
+                        message = TextResource.FromStringResource(R.string.generic_error),
+                    )
+                )
             }
         }
     }
@@ -214,8 +239,17 @@ class PlayerScreenViewModel(
             }
 
             val currentPlayingTrack = currentState.selectedTrack
-                ?: // TODO: log error
-                return@launch
+                ?: run {
+                    ErrorLogger.logError(
+                        message = "onCurrentTrackFinished: No track is currently selected.",
+                    )
+                    _event.emit(
+                        PlayerScreenEvent.ShowError(
+                            message = TextResource.FromStringResource(R.string.generic_error),
+                        )
+                    )
+                    return@launch
+                }
 
             val nextTrack: TrackDomainModel? = currentState.tracks
                 .zipWithNext()

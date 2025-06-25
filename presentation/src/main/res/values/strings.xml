@@ -5,4 +5,5 @@
     <string name="playerscreen_empty_state">This playlist is empty</string>
     <string name="playerscreen_add_track">Add a track</string>
     <string name="libraryscreen_empty_state">Your library is empty</string>
+    <string name="generic_error">An error occurred</string>
 </resources>

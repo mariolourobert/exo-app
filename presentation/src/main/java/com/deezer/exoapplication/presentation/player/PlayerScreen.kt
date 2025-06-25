@@ -23,12 +23,16 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -48,6 +52,7 @@ import androidx.media3.ui.PlayerView
 import com.deezer.exoapplication.presentation.R
 import com.deezer.exoapplication.presentation.library.LibraryScreen
 import com.deezer.exoapplication.utils.collectWithLifecycle
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 // For this exercise, we will use a hardcoded playlist Id:
@@ -59,6 +64,8 @@ private val TRACK_HEIGHT = 56.dp
 fun PlayerScreen() {
     val viewModel = koinViewModel<PlayerScreenViewModel>()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val exoPlayer: ExoPlayer = remember {
         ExoPlayer.Builder(context)
             .build()
@@ -98,6 +105,14 @@ fun PlayerScreen() {
             PlayerScreenEvent.StopAndUnloadAllTracks -> {
                 exoPlayer.stop()
                 exoPlayer.clearMediaItems()
+            }
+
+            is PlayerScreenEvent.ShowError -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = event.message.asString(context),
+                    )
+                }
             }
         }
     }
@@ -156,46 +171,52 @@ fun PlayerScreen() {
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        when (uiState) {
-            is PlayerScreenUiState.Loading ->
-                LoadingState()
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            contentAlignment = Alignment.Center,
+        ) {
+            when (uiState) {
+                is PlayerScreenUiState.Loading ->
+                    LoadingState()
 
-            is PlayerScreenUiState.Error ->
-                ErrorState(uiState = uiState as PlayerScreenUiState.Error)
+                is PlayerScreenUiState.Error ->
+                    ErrorState(uiState = uiState as PlayerScreenUiState.Error)
 
-            is PlayerScreenUiState.Loaded ->
-                LoadedState(
-                    uiState = uiState as PlayerScreenUiState.Loaded,
-                    exoPlayer = exoPlayer,
-                    onTrackClick = onTrackClick,
-                    onRemoveTrackClick = onRemoveTrackClick,
-                    onAddTrackClick = onAddTrackClick,
-                )
-
-            is PlayerScreenUiState.EmptyPlaylist ->
-                EmptyState(
-                    onAddTrackClick = onAddTrackClick,
-                )
-        }
-
-        if (uiState.isLibraryDialogVisible) {
-            Dialog(
-                onDismissRequest = onLibraryDialogDismissRequest,
-            ) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.7f)
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    LibraryScreen(
-                        onTrackClick = onNewTrackAddedToPlaylist,
+                is PlayerScreenUiState.Loaded ->
+                    LoadedState(
+                        uiState = uiState as PlayerScreenUiState.Loaded,
+                        exoPlayer = exoPlayer,
+                        onTrackClick = onTrackClick,
+                        onRemoveTrackClick = onRemoveTrackClick,
+                        onAddTrackClick = onAddTrackClick,
                     )
+
+                is PlayerScreenUiState.EmptyPlaylist ->
+                    EmptyState(
+                        onAddTrackClick = onAddTrackClick,
+                    )
+            }
+
+            if (uiState.isLibraryDialogVisible) {
+                Dialog(
+                    onDismissRequest = onLibraryDialogDismissRequest,
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.7f)
+                            .padding(16.dp),
+                        shape = RoundedCornerShape(16.dp),
+                    ) {
+                        LibraryScreen(
+                            onTrackClick = onNewTrackAddedToPlaylist,
+                        )
+                    }
                 }
             }
         }
